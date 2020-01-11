@@ -4,28 +4,32 @@ namespace BattlefieldV
 {
     public class API
     {
-        public API ( Account account )
+        public API ( User account )
         {
             OverviewStats = new Overview ( account );
             GameModeStats = new GameMode ( account );
             ClassStats = new Class ( account );
         }
-        public API ( string handle, Account.Platforms platform = Account.Platforms.Origin )
-        {
-            var account = BattlefieldV.Manager.GetAccount ( handle, platform );
 
-            OverviewStats = new Overview ( account );
-            GameModeStats = new GameMode ( account );
-            ClassStats = new Class ( account );
+        public static API Fetch( string handle, User.Platforms platform = User.Platforms.Origin )
+        {
+            var account = User.Fetch ( handle, platform );
+            var api = new API ( account );
+
+            api.OverviewStats = new Overview ( account );
+            api.GameModeStats = new GameMode ( account );
+            api.ClassStats = new Class ( account );
+
+            return api;
         }
 
-        public Overview OverviewStats { get; }
-        public GameMode GameModeStats { get; }
-        public Class ClassStats { get; set; }
+        public Overview OverviewStats { get; private set; }
+        public GameMode GameModeStats { get; private set; }
+        public Class ClassStats { get; private set; }
 
         public class Overview : APIComponent
         {
-            public Overview ( Account account ) : base ( account ) { }
+            public Overview ( User account ) : base ( account ) { }
 
             public Stat ScorePerMinute { get { return Account.GetStat ( "overview", null, "scorePerMinute" ); } }
             public Stat KDRatio { get { return Account.GetStat ( "overview", null, "kdRatio" ); } }
@@ -85,298 +89,86 @@ namespace BattlefieldV
         }
         public class GameMode : APIComponent
         {
-            public GameMode ( Account account ) : base ( account )
+            public GameMode ( User account ) : base ( account )
             {
-                AirboneStats = new Airbone ( account );
-                BreakthroughStats = new Breakthrough ( account );
-                ConquestStats = new Conquest ( account );
-                SquadConquestStats = new SquadConquest ( account );
-                DominationStats = new Domination ( account );
-                FinalStandStats = new FinalStand ( account );
-                TdmStats = new Tdm ( account );
-                FrontlinesStats = new Frontlines ( account );
+                AirboneStats = new GameModeStat ( account, "airbone" );
+                BreakthroughStats = new GameModeStat ( account, "breakthrough" );
+                ConquestStats = new GameModeStat ( account, "conquest" );
+                SquadConquestStats = new GameModeStat ( account, "squadConquest" );
+                DominationStats = new GameModeStat ( account, "domination" );
+                FinalStandStats = new GameModeStat ( account, "finalStand" );
+                TdmStats = new GameModeStat ( account, "tdm" );
+                FrontlinesStats = new GameModeStat ( account, "frontlines" );
             }
 
-            public Airbone AirboneStats { get; }
-            public Breakthrough BreakthroughStats { get; }
-            public Conquest ConquestStats { get; }
-            public SquadConquest SquadConquestStats { get; }
-            public Domination DominationStats { get; }
-            public FinalStand FinalStandStats { get; }
-            public Tdm TdmStats { get; }
-            public Frontlines FrontlinesStats { get; }
+            public GameModeStat AirboneStats { get; }
+            public GameModeStat BreakthroughStats { get; }
+            public GameModeStat ConquestStats { get; }
+            public GameModeStat SquadConquestStats { get; }
+            public GameModeStat DominationStats { get; }
+            public GameModeStat FinalStandStats { get; }
+            public GameModeStat TdmStats { get; }
+            public GameModeStat FrontlinesStats { get; }
 
-            public class Airbone : APIComponent
+            public class GameModeStat : APIComponent
             {
-                public Airbone ( Account account ) : base ( account ) { }
+                public GameModeStat ( User account, string attribute ) : base ( account ) { Attribute = attribute; }
 
-                public Stat Wins { get { return Account.GetStat ( "gamemode", "airborne", "wins" ); } }
-                public Stat Losses { get { return Account.GetStat ( "gamemode", "airborne", "losses" ); } }
-                public Stat WLPercentage { get { return Account.GetStat ( "gamemode", "airborne", "wlPercentage" ); } }
-                public Stat Score { get { return Account.GetStat ( "gamemode", "airborne", "score" ); } }
-                public Stat FlagDefends { get { return Account.GetStat ( "gamemode", "airborne", "flagDefends" ); } }
-                public Stat FlagCaptures { get { return Account.GetStat ( "gamemode", "airborne", "flagCaptures" ); } }
-                public Stat ArtilleryDefenseKills { get { return Account.GetStat ( "gamemode", "airborne", "artilleryDefenseKills" ); } }
-                public Stat BombsPlaced { get { return Account.GetStat ( "gamemode", "airborne", "bombsPlaced" ); } }
-                public Stat BombsDefused { get { return Account.GetStat ( "gamemode", "airborne", "bombsDefused" ); } }
-                public Stat MessagesDelivered { get { return Account.GetStat ( "gamemode", "airborne", "messagesDelivered" ); } }
-                public Stat CarriersKills { get { return Account.GetStat ( "gamemode", "airborne", "carriersKills" ); } }
-                public Stat CarriersReleased { get { return Account.GetStat ( "gamemode", "airborne", "carriersReleased" ); } }
-                public Stat MessagesWritten { get { return Account.GetStat ( "gamemode", "airborne", "messagesWritten" ); } }
-            }
-            public class Breakthrough : APIComponent
-            {
-                public Breakthrough ( Account account ) : base ( account ) { }
+                private string Attribute { get; set; }
 
-                public Stat Wins { get { return Account.GetStat ( "gamemode", "breakthrough", "wins" ); } }
-                public Stat Losses { get { return Account.GetStat ( "gamemode", "breakthrough", "losses" ); } }
-                public Stat WLPercentage { get { return Account.GetStat ( "gamemode", "breakthrough", "wlPercentage" ); } }
-                public Stat Score { get { return Account.GetStat ( "gamemode", "breakthrough", "score" ); } }
-                public Stat FlagDefends { get { return Account.GetStat ( "gamemode", "breakthrough", "flagDefends" ); } }
-                public Stat FlagCaptures { get { return Account.GetStat ( "gamemode", "breakthrough", "flagCaptures" ); } }
-                public Stat ArtilleryDefenseKills { get { return Account.GetStat ( "gamemode", "breakthrough", "artilleryDefenseKills" ); } }
-                public Stat BombsPlaced { get { return Account.GetStat ( "gamemode", "breakthrough", "bombsPlaced" ); } }
-                public Stat BombsDefused { get { return Account.GetStat ( "gamemode", "breakthrough", "bombsDefused" ); } }
-                public Stat MessagesDelivered { get { return Account.GetStat ( "gamemode", "breakthrough", "messagesDelivered" ); } }
-                public Stat CarriersKills { get { return Account.GetStat ( "gamemode", "breakthrough", "carriersKills" ); } }
-                public Stat CarriersReleased { get { return Account.GetStat ( "gamemode", "breakthrough", "carriersReleased" ); } }
-                public Stat MessagesWritten { get { return Account.GetStat ( "gamemode", "breakthrough", "messagesWritten" ); } }
-            }
-            public class Conquest : APIComponent
-            {
-                public Conquest ( Account account ) : base ( account ) { }
-
-                public Stat Wins { get { return Account.GetStat ( "gamemode", "conquest", "wins" ); } }
-                public Stat Losses { get { return Account.GetStat ( "gamemode", "conquest", "losses" ); } }
-                public Stat WLPercentage { get { return Account.GetStat ( "gamemode", "conquest", "wlPercentage" ); } }
-                public Stat Score { get { return Account.GetStat ( "gamemode", "conquest", "score" ); } }
-                public Stat FlagDefends { get { return Account.GetStat ( "gamemode", "conquest", "flagDefends" ); } }
-                public Stat FlagCaptures { get { return Account.GetStat ( "gamemode", "conquest", "flagCaptures" ); } }
-                public Stat ArtilleryDefenseKills { get { return Account.GetStat ( "gamemode", "conquest", "artilleryDefenseKills" ); } }
-                public Stat BombsPlaced { get { return Account.GetStat ( "gamemode", "conquest", "bombsPlaced" ); } }
-                public Stat BombsDefused { get { return Account.GetStat ( "gamemode", "conquest", "bombsDefused" ); } }
-                public Stat MessagesDelivered { get { return Account.GetStat ( "gamemode", "conquest", "messagesDelivered" ); } }
-                public Stat CarriersKills { get { return Account.GetStat ( "gamemode", "conquest", "carriersKills" ); } }
-                public Stat CarriersReleased { get { return Account.GetStat ( "gamemode", "conquest", "carriersReleased" ); } }
-                public Stat MessagesWritten { get { return Account.GetStat ( "gamemode", "conquest", "messagesWritten" ); } }
-            }
-            public class SquadConquest : APIComponent
-            {
-                public SquadConquest ( Account account ) : base ( account ) { }
-
-                public Stat Wins { get { return Account.GetStat ( "gamemode", "squadConquest", "wins" ); } }
-                public Stat Losses { get { return Account.GetStat ( "gamemode", "squadConquest", "losses" ); } }
-                public Stat WLPercentage { get { return Account.GetStat ( "gamemode", "squadConquest", "wlPercentage" ); } }
-                public Stat Score { get { return Account.GetStat ( "gamemode", "squadConquest", "score" ); } }
-                public Stat FlagDefends { get { return Account.GetStat ( "gamemode", "squadConquest", "flagDefends" ); } }
-                public Stat FlagCaptures { get { return Account.GetStat ( "gamemode", "squadConquest", "flagCaptures" ); } }
-                public Stat ArtilleryDefenseKills { get { return Account.GetStat ( "gamemode", "squadConquest", "artilleryDefenseKills" ); } }
-                public Stat BombsPlaced { get { return Account.GetStat ( "gamemode", "squadConquest", "bombsPlaced" ); } }
-                public Stat BombsDefused { get { return Account.GetStat ( "gamemode", "squadConquest", "bombsDefused" ); } }
-                public Stat MessagesDelivered { get { return Account.GetStat ( "gamemode", "squadConquest", "messagesDelivered" ); } }
-                public Stat CarriersKills { get { return Account.GetStat ( "gamemode", "squadConquest", "carriersKills" ); } }
-                public Stat CarriersReleased { get { return Account.GetStat ( "gamemode", "squadConquest", "carriersReleased" ); } }
-                public Stat MessagesWritten { get { return Account.GetStat ( "gamemode", "squadConquest", "messagesWritten" ); } }
-            }
-            public class Domination : APIComponent
-            {
-                public Domination ( Account account ) : base ( account ) { }
-
-                public Stat Wins { get { return Account.GetStat ( "gamemode", "domination", "wins" ); } }
-                public Stat Losses { get { return Account.GetStat ( "gamemode", "domination", "losses" ); } }
-                public Stat WLPercentage { get { return Account.GetStat ( "gamemode", "domination", "wlPercentage" ); } }
-                public Stat Score { get { return Account.GetStat ( "gamemode", "domination", "score" ); } }
-                public Stat FlagDefends { get { return Account.GetStat ( "gamemode", "domination", "flagDefends" ); } }
-                public Stat FlagCaptures { get { return Account.GetStat ( "gamemode", "domination", "flagCaptures" ); } }
-                public Stat ArtilleryDefenseKills { get { return Account.GetStat ( "gamemode", "domination", "artilleryDefenseKills" ); } }
-                public Stat BombsPlaced { get { return Account.GetStat ( "gamemode", "domination", "bombsPlaced" ); } }
-                public Stat BombsDefused { get { return Account.GetStat ( "gamemode", "domination", "bombsDefused" ); } }
-                public Stat MessagesDelivered { get { return Account.GetStat ( "gamemode", "domination", "messagesDelivered" ); } }
-                public Stat CarriersKills { get { return Account.GetStat ( "gamemode", "domination", "carriersKills" ); } }
-                public Stat CarriersReleased { get { return Account.GetStat ( "gamemode", "domination", "carriersReleased" ); } }
-                public Stat MessagesWritten { get { return Account.GetStat ( "gamemode", "domination", "messagesWritten" ); } }
-            }
-            public class FinalStand : APIComponent
-            {
-                public FinalStand ( Account account ) : base ( account ) { }
-
-                public Stat Wins { get { return Account.GetStat ( "gamemode", "finalStand", "wins" ); } }
-                public Stat Losses { get { return Account.GetStat ( "gamemode", "finalStand", "losses" ); } }
-                public Stat WLPercentage { get { return Account.GetStat ( "gamemode", "finalStand", "wlPercentage" ); } }
-                public Stat Score { get { return Account.GetStat ( "gamemode", "finalStand", "score" ); } }
-                public Stat FlagDefends { get { return Account.GetStat ( "gamemode", "finalStand", "flagDefends" ); } }
-                public Stat FlagCaptures { get { return Account.GetStat ( "gamemode", "finalStand", "flagCaptures" ); } }
-                public Stat ArtilleryDefenseKills { get { return Account.GetStat ( "gamemode", "finalStand", "artilleryDefenseKills" ); } }
-                public Stat BombsPlaced { get { return Account.GetStat ( "gamemode", "finalStand", "bombsPlaced" ); } }
-                public Stat BombsDefused { get { return Account.GetStat ( "gamemode", "finalStand", "bombsDefused" ); } }
-                public Stat MessagesDelivered { get { return Account.GetStat ( "gamemode", "finalStand", "messagesDelivered" ); } }
-                public Stat CarriersKills { get { return Account.GetStat ( "gamemode", "finalStand", "carriersKills" ); } }
-                public Stat CarriersReleased { get { return Account.GetStat ( "gamemode", "finalStand", "carriersReleased" ); } }
-                public Stat MessagesWritten { get { return Account.GetStat ( "gamemode", "finalStand", "messagesWritten" ); } }
-            }
-            public class Tdm : APIComponent
-            {
-                public Tdm ( Account account ) : base ( account ) { }
-
-                public Stat Wins { get { return Account.GetStat ( "gamemode", "tdm", "wins" ); } }
-                public Stat Losses { get { return Account.GetStat ( "gamemode", "tdm", "losses" ); } }
-                public Stat WLPercentage { get { return Account.GetStat ( "gamemode", "tdm", "wlPercentage" ); } }
-                public Stat Score { get { return Account.GetStat ( "gamemode", "tdm", "score" ); } }
-                public Stat FlagDefends { get { return Account.GetStat ( "gamemode", "tdm", "flagDefends" ); } }
-                public Stat FlagCaptures { get { return Account.GetStat ( "gamemode", "tdm", "flagCaptures" ); } }
-                public Stat ArtilleryDefenseKills { get { return Account.GetStat ( "gamemode", "tdm", "artilleryDefenseKills" ); } }
-                public Stat BombsPlaced { get { return Account.GetStat ( "gamemode", "tdm", "bombsPlaced" ); } }
-                public Stat BombsDefused { get { return Account.GetStat ( "gamemode", "tdm", "bombsDefused" ); } }
-                public Stat MessagesDelivered { get { return Account.GetStat ( "gamemode", "tdm", "messagesDelivered" ); } }
-                public Stat CarriersKills { get { return Account.GetStat ( "gamemode", "tdm", "carriersKills" ); } }
-                public Stat CarriersReleased { get { return Account.GetStat ( "gamemode", "tdm", "carriersReleased" ); } }
-                public Stat MessagesWritten { get { return Account.GetStat ( "gamemode", "tdm", "messagesWritten" ); } }
-            }
-            public class Frontlines : APIComponent
-            {
-                public Frontlines ( Account account ) : base ( account ) { }
-
-                public Stat Wins { get { return Account.GetStat ( "gamemode", "frontlines", "wins" ); } }
-                public Stat Losses { get { return Account.GetStat ( "gamemode", "frontlines", "losses" ); } }
-                public Stat WLPercentage { get { return Account.GetStat ( "gamemode", "frontlines", "wlPercentage" ); } }
-                public Stat Score { get { return Account.GetStat ( "gamemode", "frontlines", "score" ); } }
-                public Stat FlagDefends { get { return Account.GetStat ( "gamemode", "frontlines", "flagDefends" ); } }
-                public Stat FlagCaptures { get { return Account.GetStat ( "gamemode", "frontlines", "flagCaptures" ); } }
-                public Stat ArtilleryDefenseKills { get { return Account.GetStat ( "gamemode", "frontlines", "artilleryDefenseKills" ); } }
-                public Stat BombsPlaced { get { return Account.GetStat ( "gamemode", "frontlines", "bombsPlaced" ); } }
-                public Stat BombsDefused { get { return Account.GetStat ( "gamemode", "frontlines", "bombsDefused" ); } }
-                public Stat MessagesDelivered { get { return Account.GetStat ( "gamemode", "frontlines", "messagesDelivered" ); } }
-                public Stat CarriersKills { get { return Account.GetStat ( "gamemode", "frontlines", "carriersKills" ); } }
-                public Stat CarriersReleased { get { return Account.GetStat ( "gamemode", "frontlines", "carriersReleased" ); } }
-                public Stat MessagesWritten { get { return Account.GetStat ( "gamemode", "frontlines", "messagesWritten" ); } }
+                public Stat Wins { get { return Account.GetStat ( "gamemode", Attribute, "wins" ); } }
+                public Stat Losses { get { return Account.GetStat ( "gamemode", Attribute, "losses" ); } }
+                public Stat WLPercentage { get { return Account.GetStat ( "gamemode", Attribute, "wlPercentage" ); } }
+                public Stat Score { get { return Account.GetStat ( "gamemode", Attribute, "score" ); } }
+                public Stat FlagDefends { get { return Account.GetStat ( "gamemode", Attribute, "flagDefends" ); } }
+                public Stat FlagCaptures { get { return Account.GetStat ( "gamemode", Attribute, "flagCaptures" ); } }
+                public Stat ArtilleryDefenseKills { get { return Account.GetStat ( "gamemode", Attribute, "artilleryDefenseKills" ); } }
+                public Stat BombsPlaced { get { return Account.GetStat ( "gamemode", Attribute, "bombsPlaced" ); } }
+                public Stat BombsDefused { get { return Account.GetStat ( "gamemode", Attribute, "bombsDefused" ); } }
+                public Stat MessagesDelivered { get { return Account.GetStat ( "gamemode", Attribute, "messagesDelivered" ); } }
+                public Stat CarriersKills { get { return Account.GetStat ( "gamemode", Attribute, "carriersKills" ); } }
+                public Stat CarriersReleased { get { return Account.GetStat ( "gamemode", Attribute, "carriersReleased" ); } }
+                public Stat MessagesWritten { get { return Account.GetStat ( "gamemode", Attribute, "messagesWritten" ); } }
             }
         }
         public class Class : APIComponent
         {
-            public Class ( Account account ) : base ( account )
+            public Class ( User account ) : base ( account )
             {
-                AssaultStats = new Assault ( account );
-                MedicStats = new Medic ( account );
-                PilotStats = new Pilot ( account );
-                ReconStats = new Recon ( account );
-                SupportStats = new Support ( account );
-                TankerStats = new Tanker ( account );
+                AssaultStats = new ClassStat ( account, "assault" );
+                MedicStats = new ClassStat ( account, "medic" );
+                PilotStats = new ClassStat ( account, "pilot" );
+                ReconStats = new ClassStat ( account, "recon" );
+                SupportStats = new ClassStat ( account, "support" );
+                TankerStats = new ClassStat ( account, "tanker" );
             }
 
-            public Assault AssaultStats { get; }
-            public Medic MedicStats { get; }
-            public Pilot PilotStats { get; }
-            public Recon ReconStats { get; }
-            public Support SupportStats { get; }
-            public Tanker TankerStats { get; }
+            public ClassStat AssaultStats { get; }
+            public ClassStat MedicStats { get; }
+            public ClassStat PilotStats { get; }
+            public ClassStat ReconStats { get; }
+            public ClassStat SupportStats { get; }
+            public ClassStat TankerStats { get; }
 
-            public class Assault : APIComponent
+            public class ClassStat : APIComponent
             {
-                public Assault ( Account account ) : base ( account ) { }
+                public ClassStat ( User account, string attribute ) : base ( account ) { Attribute = attribute; }
 
-                public string ClassIconUrl { get { return Account.GetSegment ( "class", "assault" ).Attributes [ "imageUrl" ]; } }
+                private string Attribute { get; set; }
 
-                public Stat Rank { get { return Account.GetStat ( "class", "assault", "rank" ); } }
-                public Stat Kills { get { return Account.GetStat ( "class", "assault", "kills" ); } }
-                public Stat Deaths { get { return Account.GetStat ( "class", "assault", "deaths" ); } }
-                public Stat KillsPerMinute { get { return Account.GetStat ( "class", "assault", "killsPerMinute" ); } }
-                public Stat KDRatio { get { return Account.GetStat ( "class", "assault", "kdRatio" ); } }
-                public Stat TimePlayed { get { return Account.GetStat ( "class", "assault", "timePlayed" ); } }
-                public Stat ShotsFired { get { return Account.GetStat ( "class", "assault", "shotsFired" ); } }
-                public Stat ShotsHit { get { return Account.GetStat ( "class", "assault", "shotsHit" ); } }
-                public Stat ShotsAccuracy { get { return Account.GetStat ( "class", "assault", "shotsAccuracy" ); } }
-                public Stat Score { get { return Account.GetStat ( "class", "assault", "score" ); } }
-                public Stat ScorePerMinute { get { return Account.GetStat ( "class", "assault", "scorePerMinute" ); } }
-            }
-            public class Medic : APIComponent
-            {
-                public Medic ( Account account ) : base ( account ) { }
+                public string ClassIconUrl { get { return Account.GetSegment ( "class", Attribute ).Attributes [ "imageUrl" ]; } }
 
-                public string ClassIconUrl { get { return Account.GetSegment ( "class", "medic" ).Attributes [ "imageUrl" ]; } }
-
-                public Stat Rank { get { return Account.GetStat ( "class", "medic", "rank" ); } }
-                public Stat Kills { get { return Account.GetStat ( "class", "medic", "kills" ); } }
-                public Stat Deaths { get { return Account.GetStat ( "class", "medic", "deaths" ); } }
-                public Stat KillsPerMinute { get { return Account.GetStat ( "class", "medic", "killsPerMinute" ); } }
-                public Stat KDRatio { get { return Account.GetStat ( "class", "medic", "kdRatio" ); } }
-                public Stat TimePlayed { get { return Account.GetStat ( "class", "medic", "timePlayed" ); } }
-                public Stat ShotsFired { get { return Account.GetStat ( "class", "medic", "shotsFired" ); } }
-                public Stat ShotsHit { get { return Account.GetStat ( "class", "medic", "shotsHit" ); } }
-                public Stat ShotsAccuracy { get { return Account.GetStat ( "class", "medic", "shotsAccuracy" ); } }
-                public Stat Score { get { return Account.GetStat ( "class", "medic", "score" ); } }
-                public Stat ScorePerMinute { get { return Account.GetStat ( "class", "medic", "scorePerMinute" ); } }
-            }
-            public class Pilot : APIComponent
-            {
-                public Pilot ( Account account ) : base ( account ) { }
-
-                public string ClassIconUrl { get { return Account.GetSegment ( "class", "pilot" ).Attributes [ "imageUrl" ]; } }
-
-                public Stat Rank { get { return Account.GetStat ( "class", "pilot", "rank" ); } }
-                public Stat Kills { get { return Account.GetStat ( "class", "pilot", "kills" ); } }
-                public Stat Deaths { get { return Account.GetStat ( "class", "pilot", "deaths" ); } }
-                public Stat KillsPerMinute { get { return Account.GetStat ( "class", "pilot", "killsPerMinute" ); } }
-                public Stat KDRatio { get { return Account.GetStat ( "class", "pilot", "kdRatio" ); } }
-                public Stat TimePlayed { get { return Account.GetStat ( "class", "pilot", "timePlayed" ); } }
-                public Stat ShotsFired { get { return Account.GetStat ( "class", "pilot", "shotsFired" ); } }
-                public Stat ShotsHit { get { return Account.GetStat ( "class", "pilot", "shotsHit" ); } }
-                public Stat ShotsAccuracy { get { return Account.GetStat ( "class", "pilot", "shotsAccuracy" ); } }
-                public Stat Score { get { return Account.GetStat ( "class", "pilot", "score" ); } }
-                public Stat ScorePerMinute { get { return Account.GetStat ( "class", "pilot", "scorePerMinute" ); } }
-            }
-            public class Recon : APIComponent
-            {
-                public Recon ( Account account ) : base ( account ) { }
-
-                public string ClassIconUrl { get { return Account.GetSegment ( "class", "recon" ).Attributes [ "imageUrl" ]; } }
-
-                public Stat Rank { get { return Account.GetStat ( "class", "recon", "rank" ); } }
-                public Stat Kills { get { return Account.GetStat ( "class", "recon", "kills" ); } }
-                public Stat Deaths { get { return Account.GetStat ( "class", "recon", "deaths" ); } }
-                public Stat KillsPerMinute { get { return Account.GetStat ( "class", "recon", "killsPerMinute" ); } }
-                public Stat KDRatio { get { return Account.GetStat ( "class", "recon", "kdRatio" ); } }
-                public Stat TimePlayed { get { return Account.GetStat ( "class", "recon", "timePlayed" ); } }
-                public Stat ShotsFired { get { return Account.GetStat ( "class", "recon", "shotsFired" ); } }
-                public Stat ShotsHit { get { return Account.GetStat ( "class", "recon", "shotsHit" ); } }
-                public Stat ShotsAccuracy { get { return Account.GetStat ( "class", "recon", "shotsAccuracy" ); } }
-                public Stat Score { get { return Account.GetStat ( "class", "recon", "score" ); } }
-                public Stat ScorePerMinute { get { return Account.GetStat ( "class", "recon", "scorePerMinute" ); } }
-            }
-            public class Support : APIComponent
-            {
-                public Support ( Account account ) : base ( account ) { }
-
-                public string ClassIconUrl { get { return Account.GetSegment ( "class", "support" ).Attributes [ "imageUrl" ]; } }
-
-                public Stat Rank { get { return Account.GetStat ( "class", "support", "rank" ); } }
-                public Stat Kills { get { return Account.GetStat ( "class", "support", "kills" ); } }
-                public Stat Deaths { get { return Account.GetStat ( "class", "support", "deaths" ); } }
-                public Stat KillsPerMinute { get { return Account.GetStat ( "class", "support", "killsPerMinute" ); } }
-                public Stat KDRatio { get { return Account.GetStat ( "class", "support", "kdRatio" ); } }
-                public Stat TimePlayed { get { return Account.GetStat ( "class", "support", "timePlayed" ); } }
-                public Stat ShotsFired { get { return Account.GetStat ( "class", "support", "shotsFired" ); } }
-                public Stat ShotsHit { get { return Account.GetStat ( "class", "support", "shotsHit" ); } }
-                public Stat ShotsAccuracy { get { return Account.GetStat ( "class", "support", "shotsAccuracy" ); } }
-                public Stat Score { get { return Account.GetStat ( "class", "support", "score" ); } }
-                public Stat ScorePerMinute { get { return Account.GetStat ( "class", "support", "scorePerMinute" ); } }
-            }
-            public class Tanker : APIComponent
-            {
-                public Tanker ( Account account ) : base ( account ) { }
-
-                public string ClassIconUrl { get { return Account.GetSegment ( "class", "tanker" ).Attributes [ "imageUrl" ]; } }
-
-                public Stat Rank { get { return Account.GetStat ( "class", "tanker", "rank" ); } }
-                public Stat Kills { get { return Account.GetStat ( "class", "tanker", "kills" ); } }
-                public Stat Deaths { get { return Account.GetStat ( "class", "tanker", "deaths" ); } }
-                public Stat KillsPerMinute { get { return Account.GetStat ( "class", "tanker", "killsPerMinute" ); } }
-                public Stat KDRatio { get { return Account.GetStat ( "class", "tanker", "kdRatio" ); } }
-                public Stat TimePlayed { get { return Account.GetStat ( "class", "tanker", "timePlayed" ); } }
-                public Stat ShotsFired { get { return Account.GetStat ( "class", "tanker", "shotsFired" ); } }
-                public Stat ShotsHit { get { return Account.GetStat ( "class", "tanker", "shotsHit" ); } }
-                public Stat ShotsAccuracy { get { return Account.GetStat ( "class", "tanker", "shotsAccuracy" ); } }
-                public Stat Score { get { return Account.GetStat ( "class", "tanker", "score" ); } }
-                public Stat ScorePerMinute { get { return Account.GetStat ( "class", "tanker", "scorePerMinute" ); } }
+                public Stat Rank { get { return Account.GetStat ( "class", Attribute, "rank" ); } }
+                public Stat Kills { get { return Account.GetStat ( "class", Attribute, "kills" ); } }
+                public Stat Deaths { get { return Account.GetStat ( "class", Attribute, "deaths" ); } }
+                public Stat KillsPerMinute { get { return Account.GetStat ( "class", Attribute, "killsPerMinute" ); } }
+                public Stat KDRatio { get { return Account.GetStat ( "class", Attribute, "kdRatio" ); } }
+                public Stat TimePlayed { get { return Account.GetStat ( "class", Attribute, "timePlayed" ); } }
+                public Stat ShotsFired { get { return Account.GetStat ( "class", Attribute, "shotsFired" ); } }
+                public Stat ShotsHit { get { return Account.GetStat ( "class", Attribute, "shotsHit" ); } }
+                public Stat ShotsAccuracy { get { return Account.GetStat ( "class", Attribute, "shotsAccuracy" ); } }
+                public Stat Score { get { return Account.GetStat ( "class", Attribute, "score" ); } }
+                public Stat ScorePerMinute { get { return Account.GetStat ( "class", Attribute, "scorePerMinute" ); } }
             }
         }
     }

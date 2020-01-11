@@ -4,8 +4,8 @@ namespace BattlefieldV.Components
 {
     public class APIComponent
     {
-        internal Account Account { get; }
+        internal User Account { get; }
 
-        public APIComponent ( Account account ) { Account = account; }
+        public APIComponent ( User account ) { Account = account; }
     }
 }

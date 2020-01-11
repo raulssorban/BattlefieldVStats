@@ -1,20 +1,20 @@
-﻿using BattlefieldV.Components;
-using Humanlights.Extensions;
+﻿using Humanlights.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
-namespace BattlefieldV
+namespace BattlefieldV.Components
 {
-    public class Manager
+    public class User
     {
-        public static Account GetAccount ( string accountHandle, Account.Platforms accountPlatform = Account.Platforms.Origin )
+        public static User Fetch ( string accountHandle, Platforms accountPlatform = Platforms.Origin )
         {
-            var account = new Account ();
+            var account = new User ();
 
             var client = new WebClient ();
-            var accountPlatformUrl = accountPlatform == Account.Platforms.Origin ? "origin" : accountPlatform == Account.Platforms.XBox ? "xbl" : accountPlatform == Account.Platforms.PlayStation ? "psn" : "";
+            var accountPlatformUrl = accountPlatform == User.Platforms.Origin ? "origin" : accountPlatform == User.Platforms.XBox ? "xbl" : accountPlatform == User.Platforms.PlayStation ? "psn" : "";
             var data = client.DownloadString ( $"https://api.tracker.gg/api/v2/bfv/standard/profile/{accountPlatformUrl}/{accountHandle}" );
             var jObject = JsonConvert.DeserializeObject ( data ) as JObject;
 
@@ -34,13 +34,13 @@ namespace BattlefieldV
             switch ( platform [ "platformSlug" ].ToString () )
             {
                 case "origin":
-                    account.Platform = Account.Platforms.Origin;
+                    account.Platform = User.Platforms.Origin;
                     break;
                 case "xbl":
-                    account.Platform = Account.Platforms.XBox;
+                    account.Platform = User.Platforms.XBox;
                     break;
                 case "psn":
-                    account.Platform = Account.Platforms.PlayStation;
+                    account.Platform = User.Platforms.PlayStation;
                     break;
             }
 
@@ -94,6 +94,41 @@ namespace BattlefieldV
             #endregion
 
             return account;
+        }
+
+        public enum Platforms
+        {
+            Origin,
+            XBox,
+            PlayStation
+        }
+
+        public string Handle { get; set; }
+        public string Identifier { get; set; }
+        public string AvatarUrl { get; set; }
+        public string CountryCode { get; set; }
+        public Platforms Platform { get; set; }
+
+        public bool IsPremium { get; set; }
+        public bool IsVerified { get; set; }
+        public bool IsInfluencer { get; set; }
+
+        public List<Segment> Segments { get; set; } = new List<Segment> ();
+
+        public Segment GetSegment ( string type, string attribute )
+        {
+            return Segments.FirstOrDefault ( ( x ) =>
+            {
+                if ( !string.IsNullOrEmpty ( attribute ) )
+                    return x.Type.ToLower () == type.ToLower () && x.Attributes.Any ( y => y.Value.ToLower () == attribute?.ToLower () );
+                else
+                    return x.Type.ToLower () == type.ToLower ();
+            } );
+        }
+
+        public Stat GetStat ( string segmentType, string segmentAttribute, string shortName )
+        {
+            return GetSegment ( segmentType, segmentAttribute ).Stats.FirstOrDefault ( x => x.ShortName.ToLower () == shortName.ToLower () );
         }
     }
 }
