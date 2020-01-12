@@ -11,7 +11,7 @@ namespace BattlefieldV
             ClassStats = new Class ( account );
         }
 
-        public static API Fetch( string handle, User.Platforms platform = User.Platforms.Origin )
+        public static API Fetch ( string handle, User.Platforms platform = User.Platforms.Origin )
         {
             var account = User.Fetch ( handle, platform );
             var api = new API ( account );
@@ -91,7 +91,7 @@ namespace BattlefieldV
         {
             public GameMode ( User account ) : base ( account )
             {
-                AirboneStats = new GameModeStat ( account, "airbone" );
+                AirborneStats = new GameModeStat ( account, "airborne" );
                 BreakthroughStats = new GameModeStat ( account, "breakthrough" );
                 ConquestStats = new GameModeStat ( account, "conquest" );
                 SquadConquestStats = new GameModeStat ( account, "squadConquest" );
@@ -101,7 +101,7 @@ namespace BattlefieldV
                 FrontlinesStats = new GameModeStat ( account, "frontlines" );
             }
 
-            public GameModeStat AirboneStats { get; }
+            public GameModeStat AirborneStats { get; }
             public GameModeStat BreakthroughStats { get; }
             public GameModeStat ConquestStats { get; }
             public GameModeStat SquadConquestStats { get; }

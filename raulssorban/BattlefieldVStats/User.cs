@@ -119,16 +119,17 @@ namespace BattlefieldV.Components
         {
             return Segments.FirstOrDefault ( ( x ) =>
             {
-                if ( !string.IsNullOrEmpty ( attribute ) )
-                    return x.Type.ToLower () == type.ToLower () && x.Attributes.Any ( y => y.Value.ToLower () == attribute?.ToLower () );
+                if ( !string.IsNullOrEmpty ( attribute ) && x.Attributes.Count > 0 )
+                    return x.Type.ToLower ().Trim () == type.ToLower ().Trim () &&
+                           x.Attributes.ToList ().Any ( y => y.Value.ToLower ().Trim () == attribute?.ToLower ().Trim () );
                 else
-                    return x.Type.ToLower () == type.ToLower ();
+                    return x.Type.ToLower ().Trim () == type.ToLower ().Trim ();
             } );
         }
 
         public Stat GetStat ( string segmentType, string segmentAttribute, string shortName )
         {
-            return GetSegment ( segmentType, segmentAttribute ).Stats.FirstOrDefault ( x => x.ShortName.ToLower () == shortName.ToLower () );
+            return GetSegment ( segmentType, segmentAttribute )?.Stats?.FirstOrDefault ( x => x.ShortName.ToLower ().Trim () == shortName.ToLower ().Trim () );
         }
     }
 }
