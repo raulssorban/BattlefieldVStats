@@ -1,6 +1,4 @@
-﻿using BattlefieldV.Components;
-
-namespace BattlefieldV.Components
+﻿namespace BattlefieldV.Components
 {
     public class APIComponent
     {
