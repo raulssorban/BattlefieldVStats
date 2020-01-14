@@ -15,4 +15,10 @@ Based on that, I wrote a pretty handy wrapper which not only gets all the sectio
 
 
 ## Usage
+Use the **BattlefieldV** and **BattlefieldV.Components** namespaces to access the API class and User class.
+The difference between the two is:
+The **BattlefieldV.Components.User** class is the one that grabs all stats, the class which makes the call to the actual server. As the JSON is returned, I raw map them with some basic principle classes in which the data is stored and returned (Segments and Stats), data which follow a pattern, reused with instances of predefined classes. This class also has more raw unused information which you can get for your benefit, if you'll ever need. Check out the Test project for more info.
+
+The **BattlefieldV.API** is the one that you mainly want, it's the 'user-friendly' class in which you can directly access the exact data (for Overview, Game Modes and Classes of a player), using tree properties.
+
 ![GitHub Logo](https://i.imgur.com/XxXLosR.png)
