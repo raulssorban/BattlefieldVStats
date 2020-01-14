@@ -1,6 +1,7 @@
 ﻿using Humanlights.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -14,19 +15,41 @@ namespace BattlefieldV.Components
         {
             var client = new WebClient ();
             var accountPlatformUrl = platform == User.Platforms.Origin ? "origin" : platform == User.Platforms.XBox ? "xbl" : platform == User.Platforms.PlayStation ? "psn" : "";
-            var data = client.DownloadString ( $"https://api.tracker.gg/api/v2/bfv/standard/profile/{accountPlatformUrl}/{handle}" );
-            var jObject = JsonConvert.DeserializeObject ( data ) as JObject;
 
-            return Parse ( new User (), jObject );
+            try
+            {
+                var data = client.DownloadString ( $"https://api.tracker.gg/api/v2/bfv/standard/profile/{accountPlatformUrl}/{handle}" );
+                var jObject = JsonConvert.DeserializeObject ( data ) as JObject;
+
+                return Parse ( new User (), jObject );
+            }
+            catch ( Exception exception )
+            {
+                return new User ()
+                {
+                    Exception = exception
+                };
+            }
         }
         public static async Task<User> FetchAsync ( string handle, Platforms platform = Platforms.Origin )
         {
             var client = new WebClient ();
             var accountPlatformUrl = platform == User.Platforms.Origin ? "origin" : platform == User.Platforms.XBox ? "xbl" : platform == User.Platforms.PlayStation ? "psn" : "";
-            var data = await client.DownloadStringTaskAsync ( new System.Uri ( $"https://api.tracker.gg/api/v2/bfv/standard/profile/{accountPlatformUrl}/{handle}" ) );
-            var jObject = JsonConvert.DeserializeObject ( data ) as JObject;
 
-            return Parse ( new User (), jObject );
+            try
+            {
+                var data = await client.DownloadStringTaskAsync ( new System.Uri ( $"https://api.tracker.gg/api/v2/bfv/standard/profile/{accountPlatformUrl}/{handle}" ) );
+                var jObject = JsonConvert.DeserializeObject ( data ) as JObject;
+
+                return Parse ( new User (), jObject );
+            }
+            catch ( Exception exception )
+            {
+                return new User ()
+                {
+                    Exception = exception
+                };
+            }
         }
 
         private static User Parse ( User user, JObject jObject )
@@ -115,6 +138,9 @@ namespace BattlefieldV.Components
             XBox,
             PlayStation
         }
+
+        public Exception Exception { get; set; } = null;
+        public bool HasException { get { return Exception != null; } }
 
         public string Handle { get; set; }
         public string Identifier { get; set; }

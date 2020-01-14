@@ -1,41 +1,63 @@
 ﻿using BattlefieldV.Components;
+using System;
 using System.Threading.Tasks;
 
 namespace BattlefieldV
 {
     public class API
     {
-        public API ( User account )
+        public API ( User user )
         {
-            OverviewStats = new Overview ( account );
-            GameModeStats = new GameMode ( account );
-            ClassStats = new Class ( account );
+            OverviewStats = new Overview ( user );
+            GameModeStats = new GameMode ( user );
+            ClassStats = new Class ( user );
+
+            Exception = user.Exception;
         }
 
         public static API Fetch ( string handle, User.Platforms platform = User.Platforms.Origin )
         {
-            var account = User.Fetch ( handle, platform );
-            var api = new API ( account )
-            {
-                OverviewStats = new Overview ( account ),
-                GameModeStats = new GameMode ( account ),
-                ClassStats = new Class ( account )
-            };
+            var user = User.Fetch ( handle, platform );
 
-            return api;
+            if ( user.HasException )
+            {
+                return new API ( user );
+            }
+            else
+            {
+                var api = new API ( user )
+                {
+                    OverviewStats = new Overview ( user ),
+                    GameModeStats = new GameMode ( user ),
+                    ClassStats = new Class ( user )
+                };
+
+                return api;
+            }
         }
         public static async Task<API> FetchAsync ( string handle, User.Platforms platform = User.Platforms.Origin )
         {
-            var account = await User.FetchAsync ( handle, platform );
-            var api = new API ( account )
-            {
-                OverviewStats = new Overview ( account ),
-                GameModeStats = new GameMode ( account ),
-                ClassStats = new Class ( account )
-            };
+            var user = await User.FetchAsync ( handle, platform );
 
-            return api;
+            if ( user.HasException )
+            {
+                return new API ( user );
+            }
+            else
+            {
+                var api = new API ( user )
+                {
+                    OverviewStats = new Overview ( user ),
+                    GameModeStats = new GameMode ( user ),
+                    ClassStats = new Class ( user )
+                };
+
+                return api;
+            }
         }
+
+        public Exception Exception { get; set; } = null;
+        public bool HasException { get { return Exception != null; } }
 
         public Overview OverviewStats { get; private set; }
         public GameMode GameModeStats { get; private set; }
