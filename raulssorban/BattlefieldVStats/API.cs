@@ -1,4 +1,5 @@
 ﻿using BattlefieldV.Components;
+using System.Threading.Tasks;
 
 namespace BattlefieldV
 {
@@ -14,11 +15,24 @@ namespace BattlefieldV
         public static API Fetch ( string handle, User.Platforms platform = User.Platforms.Origin )
         {
             var account = User.Fetch ( handle, platform );
-            var api = new API ( account );
+            var api = new API ( account )
+            {
+                OverviewStats = new Overview ( account ),
+                GameModeStats = new GameMode ( account ),
+                ClassStats = new Class ( account )
+            };
 
-            api.OverviewStats = new Overview ( account );
-            api.GameModeStats = new GameMode ( account );
-            api.ClassStats = new Class ( account );
+            return api;
+        }
+        public static async Task<API> FetchAsync ( string handle, User.Platforms platform = User.Platforms.Origin )
+        {
+            var account = await User.FetchAsync ( handle, platform );
+            var api = new API ( account )
+            {
+                OverviewStats = new Overview ( account ),
+                GameModeStats = new GameMode ( account ),
+                ClassStats = new Class ( account )
+            };
 
             return api;
         }

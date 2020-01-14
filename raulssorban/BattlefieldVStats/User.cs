@@ -4,22 +4,35 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace BattlefieldV.Components
 {
     public class User
     {
-        public static User Fetch ( string accountHandle, Platforms accountPlatform = Platforms.Origin )
+        public static User Fetch ( string handle, Platforms platform = Platforms.Origin )
         {
-            var account = new User ();
-
             var client = new WebClient ();
-            var accountPlatformUrl = accountPlatform == User.Platforms.Origin ? "origin" : accountPlatform == User.Platforms.XBox ? "xbl" : accountPlatform == User.Platforms.PlayStation ? "psn" : "";
-            var data = client.DownloadString ( $"https://api.tracker.gg/api/v2/bfv/standard/profile/{accountPlatformUrl}/{accountHandle}" );
+            var accountPlatformUrl = platform == User.Platforms.Origin ? "origin" : platform == User.Platforms.XBox ? "xbl" : platform == User.Platforms.PlayStation ? "psn" : "";
+            var data = client.DownloadString ( $"https://api.tracker.gg/api/v2/bfv/standard/profile/{accountPlatformUrl}/{handle}" );
             var jObject = JsonConvert.DeserializeObject ( data ) as JObject;
 
+            return Parse ( new User (), jObject );
+        }
+        public static async Task<User> FetchAsync ( string handle, Platforms platform = Platforms.Origin )
+        {
+            var client = new WebClient ();
+            var accountPlatformUrl = platform == User.Platforms.Origin ? "origin" : platform == User.Platforms.XBox ? "xbl" : platform == User.Platforms.PlayStation ? "psn" : "";
+            var data = await client.DownloadStringTaskAsync ( new System.Uri ( $"https://api.tracker.gg/api/v2/bfv/standard/profile/{accountPlatformUrl}/{handle}" ) );
+            var jObject = JsonConvert.DeserializeObject ( data ) as JObject;
+
+            return Parse ( new User (), jObject );
+        }
+
+        private static User Parse ( User user, JObject jObject )
+        {
             var root = jObject [ "data" ];
-            var user = root [ "userInfo" ];
+            var userInfo = root [ "userInfo" ];
             var platform = root [ "platformInfo" ];
             var segments = root [ "segments" ];
 
@@ -34,24 +47,24 @@ namespace BattlefieldV.Components
             switch ( platform [ "platformSlug" ].ToString () )
             {
                 case "origin":
-                    account.Platform = User.Platforms.Origin;
+                    user.Platform = User.Platforms.Origin;
                     break;
                 case "xbl":
-                    account.Platform = User.Platforms.XBox;
+                    user.Platform = User.Platforms.XBox;
                     break;
                 case "psn":
-                    account.Platform = User.Platforms.PlayStation;
+                    user.Platform = User.Platforms.PlayStation;
                     break;
             }
 
-            account.Handle = platform [ "platformUserHandle" ].ToString ();
-            account.Identifier = platform [ "platformUserIdentifier" ].ToString ();
-            account.AvatarUrl = platform [ "avatarUrl" ].ToString ();
-            account.CountryCode = user [ "countryCode" ].ToString ();
+            user.Handle = platform [ "platformUserHandle" ].ToString ();
+            user.Identifier = platform [ "platformUserIdentifier" ].ToString ();
+            user.AvatarUrl = platform [ "avatarUrl" ].ToString ();
+            user.CountryCode = userInfo [ "countryCode" ].ToString ();
 
-            account.IsPremium = user [ "isPremium" ].ToString ().ToBool ();
-            account.IsVerified = user [ "isVerified" ].ToString ().ToBool ();
-            account.IsInfluencer = user [ "isInfluencer" ].ToString ().ToBool ();
+            user.IsPremium = userInfo [ "isPremium" ].ToString ().ToBool ();
+            user.IsVerified = userInfo [ "isVerified" ].ToString ().ToBool ();
+            user.IsInfluencer = userInfo [ "isInfluencer" ].ToString ().ToBool ();
 
             foreach ( var segment in segments )
             {
@@ -88,12 +101,12 @@ namespace BattlefieldV.Components
                         newSegment.Stats.Add ( newStat );
                     }
                 }
-                account.Segments.Add ( newSegment );
+                user.Segments.Add ( newSegment );
             }
 
             #endregion
 
-            return account;
+            return user;
         }
 
         public enum Platforms
@@ -129,7 +142,14 @@ namespace BattlefieldV.Components
 
         public Stat GetStat ( string segmentType, string segmentAttribute, string shortName )
         {
-            return GetSegment ( segmentType, segmentAttribute )?.Stats?.FirstOrDefault ( x => x.ShortName.ToLower ().Trim () == shortName.ToLower ().Trim () );
+            var stat = GetSegment ( segmentType, segmentAttribute )?.Stats?.FirstOrDefault ( x => x.ShortName.ToLower ().Trim () == shortName.ToLower ().Trim () );
+
+            if ( string.IsNullOrEmpty ( stat.DisplayValue ) ) stat.DisplayValue = "None";
+            if ( string.IsNullOrEmpty ( stat.DisplayType ) ) stat.DisplayType = "None";
+            if ( string.IsNullOrEmpty ( stat.DisplayCategory ) ) stat.DisplayCategory = "None";
+            if ( string.IsNullOrEmpty ( stat.Category ) ) stat.Category = "None";
+
+            return stat;
         }
     }
 }
